@@ -45,49 +45,11 @@ public class DocumentManager {
         List<Document> documents = new ArrayList<>();
         List<Document> requestedDocuments = new ArrayList<>();
         requestedDocuments = documents.stream()
-                .filter(el -> {
-                    if (request.createdTo == null)
-                        return true;
-                    else return el.created.isBefore(request.createdTo);
-                })
-                .filter(el -> {
-                    if (request.createdFrom == null)
-                        return true;
-                    else return el.created.isAfter(request.createdFrom);
-                })
-                .filter(el -> {
-                    if (request.titlePrefixes == null) {
-                        return true;
-                    }
-                    List<String> titlePrefixes = request.titlePrefixes;
-                    for (String prefix : titlePrefixes)
-                        if (el.getTitle().startsWith(prefix)) {
-                            return true;
-                        }
-                    return false;
-                })
-                .filter(el -> {
-                    if (request.authorIds == null) {
-                        return true;
-                    }
-                    List<String> authorIds = request.authorIds;
-                    for (String id : authorIds)
-                        if (el.getAuthor().id.equals(id)){
-                            return true;
-                        }
-                    return false;
-                })
-                .filter(el -> {
-                    if (request.containsContents == null) {
-                        return true;
-                    }
-                    List<String> containsContents = request.containsContents;
-                    for (String content : containsContents)
-                        if (el.getContent().contains(content)){
-                            return true;
-                        }
-                    return false;
-                })
+                .filter(el -> request.createdTo == null || el.created.isBefore(request.createdTo))
+                .filter(el -> request.createdFrom == null || el.created.isAfter(request.createdFrom))
+                .filter(el -> request.titlePrefixes == null || request.titlePrefixes.stream().anyMatch(el.getTitle()::startsWith))
+                .filter(el -> request.authorIds == null || request.authorIds.stream().anyMatch(id -> el.getAuthor().id.equals(id)))
+                .filter(el -> request.containsContents == null || request.containsContents.stream().anyMatch(el.getContent()::contains))
                 .toList();
         return requestedDocuments;
     }
