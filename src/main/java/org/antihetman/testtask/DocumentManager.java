@@ -1,6 +1,5 @@
 package org.antihetman.testtask;
 
-import jakarta.annotation.PostConstruct;
 import lombok.Builder;
 import lombok.Data;
 
@@ -45,12 +44,22 @@ public class DocumentManager {
         List<Document> documents = new ArrayList<>();
         List<Document> requestedDocuments = new ArrayList<>();
         requestedDocuments = documents.stream()
-                .filter(el -> request.createdTo == null || el.created.isBefore(request.createdTo))
-                .filter(el -> request.createdFrom == null || el.created.isAfter(request.createdFrom))
-                .filter(el -> request.titlePrefixes == null || request.titlePrefixes.stream().anyMatch(el.getTitle()::startsWith))
-                .filter(el -> request.authorIds == null || request.authorIds.stream().anyMatch(id -> el.getAuthor().id.equals(id)))
-                .filter(el -> request.containsContents == null || request.containsContents.stream().anyMatch(el.getContent()::contains))
-                .toList();
+            .filter(el ->
+                    request.createdTo == null || el.created.isBefore(request.createdTo)
+            )
+            .filter(el ->
+                    request.createdFrom == null || el.created.isAfter(request.createdFrom)
+            )
+            .filter(el ->
+                    request.titlePrefixes == null || request.titlePrefixes.stream().anyMatch(el.getTitle()::startsWith)
+            )
+            .filter(el ->
+                    request.authorIds == null || request.authorIds.stream().anyMatch(id -> el.getAuthor().id.equals(id))
+            )
+            .filter(el ->
+                    request.containsContents == null || request.containsContents.stream().anyMatch(el.getContent()::contains)
+            )
+            .toList();
         return requestedDocuments;
     }
 
