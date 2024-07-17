@@ -1,10 +1,11 @@
+package org.antihetman.testtask;
+
+import jakarta.annotation.PostConstruct;
 import lombok.Builder;
 import lombok.Data;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * For implement this task focus on clear code, and make this solution as simple readable as possible
@@ -17,6 +18,8 @@ import java.util.Optional;
  */
 public class DocumentManager {
 
+
+
     /**
      * Implementation of this method should upsert the document to your storage
      * And generate unique id if it does not exist
@@ -25,8 +28,11 @@ public class DocumentManager {
      * @return saved document
      */
     public Document save(Document document) {
-
-        return null;
+        if (document.getId() == null || document.getId().isEmpty()) {
+            UUID uuid = UUID.randomUUID();
+            document.setId(uuid.toString());
+        }
+        return document;
     }
 
     /**
@@ -36,8 +42,54 @@ public class DocumentManager {
      * @return list matched documents
      */
     public List<Document> search(SearchRequest request) {
-
-        return Collections.emptyList();
+        List<Document> documents = new ArrayList<>();
+        List<Document> requestedDocuments = new ArrayList<>();
+        requestedDocuments = documents.stream()
+                .filter(el -> {
+                    if (request.createdTo == null)
+                        return true;
+                    else return el.created.isBefore(request.createdTo);
+                })
+                .filter(el -> {
+                    if (request.createdFrom == null)
+                        return true;
+                    else return el.created.isAfter(request.createdFrom);
+                })
+                .filter(el -> {
+                    if (request.titlePrefixes == null) {
+                        return true;
+                    }
+                    List<String> titlePrefixes = request.titlePrefixes;
+                    for (String prefix : titlePrefixes)
+                        if (el.getTitle().startsWith(prefix)) {
+                            return true;
+                        }
+                    return false;
+                })
+                .filter(el -> {
+                    if (request.authorIds == null) {
+                        return true;
+                    }
+                    List<String> authorIds = request.authorIds;
+                    for (String id : authorIds)
+                        if (el.getAuthor().id.equals(id)){
+                            return true;
+                        }
+                    return false;
+                })
+                .filter(el -> {
+                    if (request.containsContents == null) {
+                        return true;
+                    }
+                    List<String> containsContents = request.containsContents;
+                    for (String content : containsContents)
+                        if (el.getContent().contains(content)){
+                            return true;
+                        }
+                    return false;
+                })
+                .toList();
+        return requestedDocuments;
     }
 
     /**
@@ -47,8 +99,8 @@ public class DocumentManager {
      * @return optional document
      */
     public Optional<Document> findById(String id) {
-
-        return Optional.empty();
+        List<Document> documents = new ArrayList<>();
+        return documents.stream().filter(el -> el.getId().equals(id)).findFirst();
     }
 
     @Data
